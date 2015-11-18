@@ -19,13 +19,13 @@ Namespace Dal
 			Dim map As Workbeat.Entities.Utilities.ObjectMapper.Map
 			map = Workbeat.Entities.Utilities.ObjectMapper.Map.getMapFromWorkbeatId(Workbeat.Entities.EntityTypes.Posicion, wbDto.id, clientName)
 			If IsNumeric(map.externalId) Then
-				Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteClientName") & "_DBFile") & ";Version=3;")
+				Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteSampleClientName") & "_DBFile") & ";Version=3;")
 					Try
 						dbConn.Open()
 						Dim sqlStr As String = String.Empty
 						If Not String.IsNullOrEmpty(map.externalId) AndAlso CInt(map.externalId) > 0 Then
 							' actualizar posicion
-							sqlStr = "delete Posicion where idPosiocion = @idPosicion"
+							sqlStr = "Delete FROM Posiciones where idPosicion = @idPosicion"
 
 							Dim cmd = New SQLiteCommand(sqlStr, dbConn)
 							cmd.Parameters.Add(New SQLiteParameter("idPosicion", CLng(map.externalId)))
@@ -46,7 +46,7 @@ Namespace Dal
 		Public Overrides Function getEntity(clientId As String) As Workbeat.Entities.ClientEntity
 			log.Debug("Llamando a SampleSQLiteDB.PosicionDal.getEntity(clientId:=" & clientId & ")")
 			Dim pos As Workbeat.ClientConnector.SampleSQLiteDB.Entities.Posicion = Nothing
-			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteClientName") & "_DBFile") & ";Version=3;")
+			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteSampleClientName") & "_DBFile") & ";Version=3;")
 				Try
 					dbConn.Open()
 					Dim sqlStr As String = "SELECT * FROM posiciones WHERE idPosicion = @idPosicion "
@@ -102,7 +102,7 @@ Namespace Dal
 			' convertir fecha a epoch date en milisegundos
 			Dim epochDate As Long = DateDiff("s", "01/01/1970 00:00:00", ultimaFechaActualizacion) * 1000
 
-			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteClientName") & "_DBFile") & ";Version=3;")
+			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteSampleClientName") & "_DBFile") & ";Version=3;")
 				Try
 					dbConn.Open()
 					Dim sqlStr As String = "SELECT * FROM posiciones WHERE fechaUltimoCambio> @fechaUltimoCambio "
@@ -153,6 +153,8 @@ Namespace Dal
 			log.Debug("Llamando a SampleSQLiteDB.PosicionDal.Save(WorkbeatId:=" & wbDto.id & ", nombre:=" & wbDto.nombre & ")")
 			Dim map As Workbeat.Entities.Utilities.ObjectMapper.Map
 			map = Workbeat.Entities.Utilities.ObjectMapper.Map.getMapFromWorkbeatId(Workbeat.Entities.EntityTypes.Posicion, wbDto.id, clientName)
+			' Esta funcion verifica que exista la posicion padre y la da de alta si no.
+			' es recursiva para incluir los padres y no haya errores de estructura.
 			Dim idPadre As Integer = verificaPadre(wbObject, clientName)
 			Dim posDto As Workbeat.Entities.PosicionDto
 			Dim clEnt As Workbeat.ClientConnector.SampleSQLiteDB.Entities.Posicion
@@ -161,7 +163,7 @@ Namespace Dal
 			clEnt.data = posDto
 			clEnt.entityId = map.externalId
 
-			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteClientName") & "_DBFile") & ";Version=3;")
+			Using dbConn = New SQLiteConnection("Data Source=" & ConfigurationManager.AppSettings(ConfigurationManager.AppSettings("SQLiteSampleClientName") & "_DBFile") & ";Version=3;")
 				Try
 					Dim result As Long = 0
 					dbConn.Open()
@@ -175,12 +177,10 @@ Namespace Dal
 					Else
 						' guardar nueva posicion
 						sqlStr = "insert into Posiciones (nombre , idPadre, fechaLastUpdate)"
-						sqlStr &= "VALUES(@nombre , @idPadre, @fechaLastUpdate);SELECT last_insert_rowid();"
-
+						sqlStr &= "VALUES(@nombre , @idPadre, @fechaLastUpdate);"
+						sqlStr &= "SELECT last_insert_rowid();"
 					End If
-
-					log.Debug(sqlStr)
-
+					' log.Debug(sqlStr)
 					Dim cmd = New SQLiteCommand(sqlStr, dbConn)
 					cmd.Parameters.Add(New SQLiteParameter("nombre", posDto.nombre))
 					' idPadre (idPosicionReporta) debe ya estar dada de alta. el id debe corresponder a un id en sqliteSample
@@ -190,7 +190,6 @@ Namespace Dal
 					If posDto.id > 0 Then
 						cmd.Parameters.Add(New SQLiteParameter("idPosicion", posDto.id))
 						result = cmd.ExecuteNonQuery()
-
 					Else
 						result = cmd.ExecuteScalar()
 						posDto.id = result
@@ -199,12 +198,7 @@ Namespace Dal
 						newMap.externalId = result
 						newMap.Save()
 					End If
-
-
-					'SELECT last_insert_rowid()
-
-
-					' TODO: En caso de insercion (nuevo) mapear el Idposicion creado al workbeatId
+					cmd.Dispose()
 
 					' TODO: traer el departamento y guardarlo en la BD.
 
@@ -246,10 +240,8 @@ Namespace Dal
 				End If
 				Dim result As String
 				result = apiObj.get("/org/posiciones/" & wbDto.idPosicionReporta.ToString)
-
-				Dim wbPos As Workbeat.Entities.PosicionDto
-				Dim js As New JavaScriptSerializer
-				wbPos = js.Deserialize(Of Workbeat.Entities.PosicionDto)(result)
+				Dim wbPos As New Workbeat.Entities.PosicionDto
+				wbPos = DirectCast(Workbeat.Entities.Utilities.JsonConverter.getObject(result, wbPos), Workbeat.Entities.PosicionDto)
 				' guarda al padre
 				Save(wbPos, clientName)
 				mapPadre = Workbeat.Entities.Utilities.ObjectMapper.Map.getMapFromWorkbeatId(Workbeat.Entities.EntityTypes.Posicion, wbPos.id, clientName)

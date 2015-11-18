@@ -1,4 +1,8 @@
-﻿Public MustInherit Class WorkbeatEntity
+﻿Imports System.Runtime.Serialization
+
+
+<DataContract()> _
+Public MustInherit Class WorkbeatEntity
 	Private m_data As Dto
 	Public MustOverride Property data() As Dto
 	Public MustOverride Property workbeatId As String
@@ -7,6 +11,9 @@
 End Class
 
 
+
+
+<DataContract()> _
 Public MustInherit Class Dto
 
 

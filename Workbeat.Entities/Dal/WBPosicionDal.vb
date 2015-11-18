@@ -1,6 +1,5 @@
 ﻿Imports Workbeat.API
 Imports System.Text
-Imports System.Web.Script.Serialization
 Imports System.Configuration
 
 Namespace Dal
@@ -14,9 +13,8 @@ Namespace Dal
 
 		Public Overrides Function getEntity(id As String) As Dto
 			Dim result As String = APIClient.get("org/posiciones/" & id)
-			Dim pos As PosicionDto
-			Dim js As New JavaScriptSerializer
-			pos = js.Deserialize(Of Workbeat.Entities.PosicionDto)(result)
+			Dim pos As New PosicionDto
+			pos = DirectCast(Utilities.JsonConverter.getObject(result, pos), Workbeat.Entities.PosicionDto)
 			Return pos
 		End Function
 
@@ -25,16 +23,15 @@ Namespace Dal
 			Dim ultimaFechaActualizacion As DateTime
 			ultimaFechaActualizacion = Utilities.Sync.SyncDate.getEntityLastUpdate(Workbeat.Entities.EntityTypes.Posicion, clientName)
 			' convertir fecha a epoch date en milisegundos
-			Dim epochDate As Long = DateDiff("s", "01/01/1970 00:00:00", ultimaFechaActualizacion) * 1000
+			Dim epochDate As Long = DateDiff("s", "01/01/1970 00:00:00", ultimaFechaActualizacion.ToUniversalTime()) * 1000
 			Dim result As String = APIClient.get("org/ultimos_cambios/posiciones/", "{""actualizado_desde"":" & epochDate.ToString() & "}")
-			Dim posiciones As PosicionDto()
-			Dim js As New JavaScriptSerializer
+			Dim posiciones As PosicionDto() = {}
 			If result.IndexOf("TotalRows") > 0 Then
-				Dim wbres As Workbeat.API.PagedResult(Of PosicionDto)
-				wbres = js.Deserialize(Of Workbeat.API.PagedResult(Of PosicionDto))(result)
+				Dim wbres As New Workbeat.API.PagedResult(Of PosicionDto)
+				wbres = DirectCast(Utilities.JsonConverter.getObject(result, wbres), Workbeat.API.PagedResult(Of PosicionDto))
 				posiciones = wbres.data
 			Else
-				posiciones = js.Deserialize(Of Workbeat.Entities.PosicionDto())(result)
+				posiciones = DirectCast(Utilities.JsonConverter.getObject(result, posiciones), Workbeat.Entities.PosicionDto())
 			End If
 			Dim list As New System.Collections.Generic.List(Of WorkbeatEntity)
 			Dim posEntity As Workbeat.Entities.WorkbeatEntities.Posicion
@@ -65,8 +62,7 @@ Namespace Dal
 			posDto.idPosicionReporta = idPadre
 			wbEnt.Data = posDto
 			wbEnt.workbeatId = map.workbeatId
-			Dim js As New JavaScriptSerializer
-			Dim jsonData As String = js.Serialize(wbEnt.Data)
+			Dim jsonData As String = Utilities.JsonConverter.getJsonObj(wbEnt.Data)
 			Dim result As String
 			If IsNumeric(wbEnt.workbeatId) Then
 				' actualizar
@@ -74,8 +70,9 @@ Namespace Dal
 			Else
 				' es nuevo.
 				result = APIClient.post("org/posiciones/", jsonData)
-				Dim newPosDto As Workbeat.Entities.PosicionDto
-				newPosDto = js.Deserialize(Of Workbeat.Entities.PosicionDto)(result)
+				Dim newPosDto As New Workbeat.Entities.PosicionDto
+
+				newPosDto = DirectCast(Utilities.JsonConverter.getObject(result, newPosDto), Workbeat.Entities.PosicionDto)
 				wbEnt.Data = newPosDto
 				Dim newMap As Workbeat.Entities.Utilities.ObjectMapper.Map
 				newMap = Workbeat.Entities.Utilities.ObjectMapper.Map.getMapFromExternalId(Workbeat.Entities.EntityTypes.Posicion, clEnt.entityId, clientName)

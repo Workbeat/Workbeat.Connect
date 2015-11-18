@@ -1,10 +1,9 @@
-﻿Namespace WorkbeatEntities
-	Public Class Posicion
-		Inherits WorkbeatEntity
+﻿Namespace ClientEntities
 
-		'Public DataType As Type = GetType(WBPosicionDto)
+	Public Class TipoPlantilla
+		Inherits ClientEntity
 
-		Private m_data As PosicionDto
+		Private m_data As TipoPlantillaDto
 		Public Overrides Property Data As Dto
 			Get
 				Return m_data
@@ -14,7 +13,7 @@
 			End Set
 		End Property
 
-		Public Overrides Property workbeatId() As String
+		Public Overrides Property entityId() As String
 			Get
 				Return m_data.id.ToString
 			End Get
@@ -32,15 +31,20 @@
 			End Set
 		End Property
 
-
 		Public Overrides Property active As Boolean
 			Get
-				Return m_data.activo >= 1 ' activo 1 y 2 estan activos
+				Return 1
 			End Get
 			Set(value As Boolean)
-				m_data.activo = IIf(value, 1, 0)
+				'm_data.activo = IIf(value, 1, 0)
 			End Set
 		End Property
+
+
 	End Class
+
+
+
+
 
 End Namespace

@@ -1,10 +1,8 @@
 ﻿Namespace WorkbeatEntities
-	Public Class Posicion
+	Public Class Organizacion
 		Inherits WorkbeatEntity
 
-		'Public DataType As Type = GetType(WBPosicionDto)
-
-		Private m_data As PosicionDto
+		Private m_data As OrganizacionDto
 		Public Overrides Property Data As Dto
 			Get
 				Return m_data
@@ -35,12 +33,19 @@
 
 		Public Overrides Property active As Boolean
 			Get
-				Return m_data.activo >= 1 ' activo 1 y 2 estan activos
+				Return m_data.activo >= 1
 			End Get
 			Set(value As Boolean)
 				m_data.activo = IIf(value, 1, 0)
 			End Set
 		End Property
+
+
+
 	End Class
+
+
+
+
 
 End Namespace

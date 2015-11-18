@@ -55,6 +55,7 @@
     <Reference Include="System.Data.SQLite">
       <HintPath>..\Referencias\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -79,18 +80,44 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientDal.vb" />
+    <Compile Include="ClientEntities\Atributo.vb" />
+    <Compile Include="ClientEntities\DescripcionPuesto.vb" />
+    <Compile Include="ClientEntities\ElementoAtributo.vb" />
+    <Compile Include="ClientEntities\Empleado.vb" />
+    <Compile Include="ClientEntities\Organizacion.vb" />
     <Compile Include="ClientEntities\Posicion.vb" />
+    <Compile Include="ClientEntities\TipoPlantilla.vb" />
     <Compile Include="ClientEntity.vb" />
+    <Compile Include="Dal\WBAtributoDal.vb" />
+    <Compile Include="Dal\WBDescripcionPuestoDal.vb" />
+    <Compile Include="Dal\WBElementoAtributoDal.vb" />
+    <Compile Include="Dal\WBEmpleadoDal.vb" />
+    <Compile Include="Dal\WBOrganizacionDal.vb" />
     <Compile Include="Dal\WBPosicionDal.vb" />
+    <Compile Include="Dal\WBTipoPlantillaDal.vb" />
     <Compile Include="Dal\WorkbeatDal.vb" />
+    <Compile Include="Dto\AtributoDto.vb" />
+    <Compile Include="Dto\DescripcionPuestoDto.vb" />
+    <Compile Include="Dto\ElementoAtributoDto.vb" />
+    <Compile Include="Dto\EmpleadoDto.vb" />
+    <Compile Include="Dto\MoPersDto.vb" />
+    <Compile Include="Dto\OrganizacionDto.vb" />
     <Compile Include="Dto\PosicionDto.vb" />
+    <Compile Include="Dto\TipoPlantillaDto.vb" />
     <Compile Include="EntityTypes.vb" />
     <Compile Include="MessageHandler.vb" />
     <Compile Include="Utilities\EntitySyncDateDal.vb" />
+    <Compile Include="Utilities\JsonConverter.vb" />
     <Compile Include="Utilities\Map.vb" />
     <Compile Include="Utilities\MapDal.vb" />
     <Compile Include="Utilities\SyncDate.vb" />
+    <Compile Include="WorkbeatEntities\Atributo.vb" />
+    <Compile Include="WorkbeatEntities\DescripcionPuesto.vb" />
+    <Compile Include="WorkbeatEntities\ElementoAtributo.vb" />
+    <Compile Include="WorkbeatEntities\Empleado.vb" />
+    <Compile Include="WorkbeatEntities\Organizacion.vb" />
     <Compile Include="WorkbeatEntities\Posicion.vb" />
+    <Compile Include="WorkbeatEntities\TipoPlantilla.vb" />
     <Compile Include="WorkbeatEntity.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">

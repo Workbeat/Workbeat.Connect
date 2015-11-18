@@ -30,7 +30,7 @@ Namespace Strategies
 
 			For Each wbEnt In entityList
 				If Not wbEnt.active Then
-					'	Borrar en Cliente
+					' Borrar en Cliente
 					log.Info("Borrando " & entityName & " en el cliente. WorkbeatID:" & wbEnt.workbeatId)
 					clientDal.Delete(wbEnt.data, clientName)
 				Else
@@ -39,7 +39,7 @@ Namespace Strategies
 					clientDal.Save(wbEnt.data, clientName)
 				End If
 			Next
-			' TODO: Actualizar fecha de sincronizacion.
+			' Actualizar fecha de sincronizacion.
 			Workbeat.Entities.Utilities.Sync.SyncDate.setEntityLastUpdate(entityType, clientName, syncDateStart)
 			log.Info("Fin de sincronizacion." & entityType.ToString)
 			Return 1
